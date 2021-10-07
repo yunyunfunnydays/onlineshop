@@ -1,0 +1,5 @@
+@import "~bootstrap/scss/functions";
+@import "./helpers/variables"; // 把載入 bootstrap 變數變成載入自定義的變數，
+@import "~bootstrap/scss/mixins";
+
+@import "~bootstrap/scss/bootstrap"
