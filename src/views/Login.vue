@@ -57,7 +57,12 @@ export default {
       // this.axios.post(串接的API, 傳輸的內容(須符合API格式))
       this.axios.post(api, this.user)
         .then((res) => {
-          console.log(res);
+          // 將登入資訊儲存於 cookie
+          const { token, expired } = res.data; // ES6 物件解構
+          // 操作 cooking 的 MDN https://developer.mozilla.org/zh-CN/docs/Web/API/Document/cookie
+          // document.cookie = `自定義名稱=${token值}; expires=${new Date(expired值，並換成 cookie 要的格式)}`
+          document.cookie = `hexToken=${token}; expires=${new Date(expired)}`;
+          console.log(res, expired, new Date(expired));
         });
     },
   },
