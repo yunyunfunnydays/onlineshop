@@ -50,9 +50,9 @@ export default {
   methods: {
     // 設置此方法，在 submit 事件觸發時，將 user 資料，透過 API 傳到資料庫，並獲得回傳訊息來表示是否成功
     signin() {
-      console.log('singin');
+      // console.log('singin');
       const api = `${process.env.VUE_APP_API}admin/signin`;
-      console.log(api);
+      // console.log(api);
       // 參考 vue.axios 文件可知 axios 操作的格式，可為 this.axios/$https
       // this.axios.post(串接的API, 傳輸的內容(須符合API格式))
       this.axios.post(api, this.user)
@@ -62,7 +62,10 @@ export default {
           // 操作 cooking 的 MDN https://developer.mozilla.org/zh-CN/docs/Web/API/Document/cookie
           // document.cookie = `自定義名稱=${token值}; expires=${new Date(expired值，並換成 cookie 要的格式)}`
           document.cookie = `hexToken=${token}; expires=${new Date(expired)}`;
-          console.log(res, expired, new Date(expired));
+          // console.log(res, expired, new Date(expired),token);
+          if (res.data.success) {
+            this.$router.push('/dashboard');
+          }
         });
     },
   },
