@@ -1,9 +1,16 @@
 <template>
-  成功登入跳轉業面
+  <!--新增 bootstrap navbar 元件，獨立為一個 components 檔案，並用註冊的方式匯入-->
+  <Navbar></Navbar>
+  <router-view/>
 </template>
 
 <script>
+import Navbar from '@/components/Navbar.vue';
+
 export default {
+  components: {
+    Navbar,
+  },
   created() {
     // 從 cookie 取出 token
     const token = document.cookie.replace(/(?:(?:^|.*;\s*)hexToken\s*=\s*([^;]*).*$)|^.*$/, '$1');

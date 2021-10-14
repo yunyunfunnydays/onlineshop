@@ -20,8 +20,15 @@ const routes = [
     component: () => import('../views/Login.vue'),
   },
   {
+    // 修改成巢狀路由，增加產品頁元件
     path: '/dashboard',
     component: () => import('../views/Dashboard.vue'),
+    children: [
+      {
+        path: 'products',
+        component: () => import('../views/Products.vue'),
+      },
+    ],
   },
 ];
 
