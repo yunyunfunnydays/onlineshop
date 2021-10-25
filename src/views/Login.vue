@@ -52,7 +52,7 @@ export default {
       // console.log('singin');
       const api = `${process.env.VUE_APP_API}admin/signin`;
       // console.log(api);
-      this.axios.post(api, this.user)
+      this.$http.post(api, this.user)
         .then((res) => {
           const { token, expired } = res.data; // ES6 物件解構
           document.cookie = `hexToken=${token}; expires=${new Date(expired)}`;

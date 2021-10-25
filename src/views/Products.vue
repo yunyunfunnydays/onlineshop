@@ -1,5 +1,10 @@
 // 後台管理，產品列表
 <template>
+  <div class="text-end">
+    <button class="btn btn-primary" type="button" @click="openModal">
+      新增商品
+    </button>
+  </div>
   <table class="table mt-4">
     <thead>
       <tr>
@@ -32,28 +37,54 @@
       </tr>
     </tbody>
   </table>
+  <ProductModal ref="modalDom" :product-props="tempProduct"
+                @update-product="updateProduct"></ProductModal>
 </template>
 
 <script>
+import ProductModal from '@/components/ProductModal.vue';
+
 export default {
   data() {
     return {
       products: [],
       pagination: {}, // 分頁資訊
+      tempProduct: {},
     };
   },
+
+  components: {
+    ProductModal,
+  },
+
   methods: {
     // 後台管理，取得產品列表
     getProducts() {
       // 取得產品列表 API
       const api = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/admin/products`;
-      this.axios.get(api)
+      this.$http.get(api)
         .then((res) => {
           if (res.data.success) {
             // 取得後將資料存入 DATA，才可以帶入到 HTML
             this.products = res.data.products;
             this.pagination = res.data.pagination;
           }
+        });
+    },
+    openModal() {
+      this.tempProduct = {};
+      const productComponent = this.$refs.modalDom;
+      productComponent.modalShow();
+    },
+    updateProduct(item) {
+      this.tempProduct = item;
+      const productComponent = this.$refs.modalDom;
+      const api = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/admin/product`;
+      this.$http.post(api, { data: this.tempProduct })
+        .then((res) => {
+          productComponent.modalHide();
+          console.log(res);
+          this.getProducts();
         });
     },
   },
