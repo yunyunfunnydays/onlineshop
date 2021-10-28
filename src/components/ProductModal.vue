@@ -19,13 +19,40 @@
             <div class="col-sm-4">
               <div class="mb-3">
                 <label for="image" class="form-label">輸入圖片網址</label>
-                <input type="text" class="form-label" id="image" placeholder="請輸入圖片連結">
+                <input type="text" class="form-control form-control" id="image"
+                       placeholder="請輸入圖片連結" v-model="tempProduct.inageUrl">
               </div>
-              <div class="mb-3">
-                <label for="cusomFile" class="form-label">或 上傳圖片
+              <div class="mb-3" >
+                <label for="customFile" class="form-label">
+                  或 上傳圖片
                   <i class="fas fa-spinner fa-spin"></i>
                 </label>
-                <!-- TODO 加上新增圖片的方法 -->
+                <!-- 上傳圖片 -->
+                <!-- TODO一次上傳多圖 (檔案圖片)-->
+                <input type="file" id="customFile" class="form-control form-control"
+                       ref="fileInput" @change="uploadFile">
+              </div>
+              <img :src="tempProduct.imageUrl" alt="" class="img-fluid">
+              <!-- 一次新增多圖 (從連結) -->
+              <div class="mt-5" v-if="tempProduct.images">
+                <!-- 先將已有的資料取出 -->
+                <div v-for="(image, key) in tempProduct.images"
+                          class="mb-3 input-group" :key="key">
+                  <input
+                    type="url"
+                    class="form-control"
+                    placeholder="請輸入連結"
+                    v-model="tempProduct.images[key]">
+                  <button type="button" class="btn btn-outline-danger"
+                          @click="tempProduct.images.splice(key, 1)">移除</button>
+                  <img :src="tempProduct.images[key]" alt="" class="img-fluid">
+                </div>
+                <!-- 如果能填入的資料為空或滿了，則會再出現新增圖片選項 -->
+              <div v-if="
+              tempProduct.images[tempProduct.images.length - 1] || !tempProduct.images.length">
+                   <button class="btn btn-outline-primary btn-sm d-block w-100"
+                           @click="tempProduct.images.push('')">新增圖片</button>
+               </div>
               </div>
             </div>
             <div class="col-sm-8">
@@ -102,7 +129,7 @@
 <script>
 // 匯入 js 檔案中匯出的物件，在 bootstrap 的 modal.js 匯出其 js 物件來操作 modal，此物件為一建構函式，可利用創建實例，使實例可使用 modal 物件中的方法與屬性
 // 1. 匯入 js 檔案中匯出的物件，在 bootstrap 的 modal.js 匯出其 js 物件來操作 modal，此物件為一建構函式
-import Modal from 'bootstrap/js/dist/modal';
+import modalMixin from '@/mixins/modalMixin';
 
 // 2.在 mounted 生命週期，創建 modal 實例，在 mounted 生命週期才抓得到 html DOM 內容
 export default {
@@ -110,6 +137,7 @@ export default {
     return {
       modal: {},
       tempProduct: {},
+      app: {},
     };
   },
 
@@ -121,25 +149,32 @@ export default {
       },
     },
   },
-
-  methods: {
-    modalShow() {
-      this.modal.show();
-    },
-    modalHide() {
-      this.modal.hide();
-    },
-  },
-
-  mounted() {
-    this.modal = new Modal(this.$refs.modalDom);
-  },
-
   watch: {
     productProps() {
       this.tempProduct = this.productProps;
+      // 判斷是否首次新增圖片，若是則創建一個陣列來儲存圖片 URL
+      if (!this.tempProduct.images) {
+        this.tempProduct.images = [];
+      }
     },
   },
+  methods: {
+    uploadFile() {
+      // 圖片檔案傳至專門上傳圖片的 API，會回傳圖片的 URL
+      // 將此 URL 存到產品的物件中，再透過 updateProduct() 將 URL 跟資料傳入後端
+      const uploadedFile = this.$refs.fileInput.files[0];
+      const formData = new FormData();
+      formData.append('file-to-upload', uploadedFile);
+      const api = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/admin/upload`;
 
+      this.$http.post(api, formData)
+        .then((res) => {
+          if (res.data.success) {
+            this.tempProduct.imageUrl = res.data.imageUrl;
+          }
+        });
+    },
+  },
+  mixins: [modalMixin],
 };
 </script>

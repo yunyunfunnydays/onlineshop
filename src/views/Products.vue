@@ -1,7 +1,7 @@
 // 後台管理，產品列表
 <template>
   <div class="text-end">
-    <button class="btn btn-primary" type="button" @click="openModal">
+    <button class="btn btn-primary" type="button" @click="openModal(true)">
       新增商品
     </button>
   </div>
@@ -20,7 +20,7 @@
       <!-- 用 v-for 建立有重複性的表格 -->
       <tr v-for="item in products" :key="item.id">
         <td>{{item.category}}</td>
-        <td>{{item.content}}</td>
+        <td>{{item.title}}</td>
         <td class="text-right">{{item.origin_price}}</td>
         <td class="text-right">{{item.price}}</td>
         <td>
@@ -30,8 +30,10 @@
         </td>
         <td>
           <div class="btn-group">
-            <button class="btn btn-outline-primary btn-sm">編輯</button>
-            <button class="btn btn-outline-danger btn-sm">刪除</button>
+            <button class="btn btn-outline-primary btn-sm"
+                    @click="openModal(false,item)">編輯</button>
+            <button class="btn btn-outline-danger btn-sm"
+                    @click="openDelModal(item)">刪除</button>
           </div>
         </td>
       </tr>
@@ -39,10 +41,14 @@
   </table>
   <ProductModal ref="modalDom" :product-props="tempProduct"
                 @update-product="updateProduct"></ProductModal>
+  <DelModal ref="delModalDom" :del-product-props="tempProduct"
+            @del-product="delProduct"></DelModal>
 </template>
 
 <script>
 import ProductModal from '@/components/ProductModal.vue';
+
+import DelModal from '@/components/DelModal.vue';
 
 export default {
   data() {
@@ -50,11 +56,14 @@ export default {
       products: [],
       pagination: {}, // 分頁資訊
       tempProduct: {},
+      // 因為有新增、修改兩個路徑，所以新增一個變數來協助區別，true 為新增，false 為編輯
+      inNew: false,
     };
   },
 
   components: {
     ProductModal,
+    DelModal,
   },
 
   methods: {
@@ -71,21 +80,51 @@ export default {
           }
         });
     },
-    openModal() {
-      this.tempProduct = {};
+    openModal(isNew, item) {
+      if (isNew) {
+        // 新增
+        this.tempProduct = {};
+      } else {
+        // 編輯
+        this.tempProduct = { ...item };
+      }
+      this.isNew = isNew;
       const productComponent = this.$refs.modalDom;
       productComponent.modalShow();
     },
     updateProduct(item) {
       this.tempProduct = item;
+      // 由於新增、修改的 ap i用法路徑都不同，所以要靠 isNew 來判斷是新增還是修改
+      // 新增
+      let api = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/admin/product`;
+      let httpMethod = 'post';
+
+      // 編輯
+      if (!this.isNew) {
+        api = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/admin/product/${this.tempProduct.id}`;
+        httpMethod = 'put';
+      }
       const productComponent = this.$refs.modalDom;
-      const api = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/admin/product`;
-      this.$http.post(api, { data: this.tempProduct })
+      this.$http[httpMethod](api, { data: this.tempProduct })
         .then((res) => {
           productComponent.modalHide();
           console.log(res);
           this.getProducts();
         });
+    },
+    openDelModal(delItem) {
+      this.tempProduct = delItem;
+      this.$refs.delModalDom.modalShow();
+    },
+    delProduct() {
+      console.log();
+      const api = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/admin/product/${this.tempProduct.id}`;
+      this.$http.delete(api)
+        .then((res) => {
+          console.log(res);
+        });
+      this.$refs.delModalDom.modalHide();
+      this.getProducts();
     },
   },
   // 在頁面創建時觸發此方法取得產品列表
