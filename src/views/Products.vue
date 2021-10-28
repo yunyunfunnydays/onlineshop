@@ -68,6 +68,8 @@ export default {
     DelModal,
   },
 
+  inject: ['emitter'],
+
   methods: {
     // 後台管理，取得產品列表
     getProducts() {
