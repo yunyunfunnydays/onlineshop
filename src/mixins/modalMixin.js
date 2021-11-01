@@ -4,7 +4,6 @@ export default {
   methods: {
     modalShow() {
       this.modal.show();
-      console.log(1234);
     },
     modalHide() {
       this.modal.hide();

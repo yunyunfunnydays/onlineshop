@@ -47,8 +47,8 @@
 </template>
 
 <script>
+// mitt 在此載入在使用 provide 使子元件可用 inject 得到 mitt 實例
 import ProductModal from '@/components/ProductModal.vue';
-
 import DelModal from '@/components/DelModal.vue';
 
 export default {
@@ -100,7 +100,7 @@ export default {
     },
     updateProduct(item) {
       this.tempProduct = item;
-      // 由於新增、修改的 ap i用法路徑都不同，所以要靠 isNew 來判斷是新增還是修改
+      // 由於新增、修改的 api用法路徑都不同，所以要靠 isNew 來判斷是新增還是修改
       // 新增
       let api = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/admin/product`;
       let httpMethod = 'post';
@@ -111,12 +111,23 @@ export default {
         httpMethod = 'put';
       }
       const productComponent = this.$refs.modalDom;
-      this.isLoading = true;
       this.$http[httpMethod](api, { data: this.tempProduct })
         .then((res) => {
           productComponent.modalHide();
-          console.log(res);
-          this.getProducts();
+          console.log('錯誤訊息', res);
+          if (res.data.success) {
+            this.getProducts();
+            this.emitter.emit('push-message', {
+              style: 'success',
+              title: '更新成功',
+            });
+          } else {
+            this.emitter.emit('push-message', {
+              style: 'danger',
+              title: '更新失敗',
+              content: res.data.message.join('、'),
+            });
+          }
         });
     },
     openDelModal(delItem) {
