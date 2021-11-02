@@ -44,12 +44,14 @@
                 @update-product="updateProduct"></ProductModal>
   <DelModal ref="delModalDom" :del-product-props="tempProduct"
             @del-product="delProduct"></DelModal>
+  <Pagination :pages="pagination" @emit-pages="getProducts"></Pagination>
 </template>
 
 <script>
 // mitt 在此載入在使用 provide 使子元件可用 inject 得到 mitt 實例
 import ProductModal from '@/components/ProductModal.vue';
 import DelModal from '@/components/DelModal.vue';
+import Pagination from '@/components/Pagination.vue';
 
 export default {
   data() {
@@ -66,15 +68,17 @@ export default {
   components: {
     ProductModal,
     DelModal,
+    Pagination,
   },
 
   inject: ['emitter'],
 
   methods: {
     // 後台管理，取得產品列表
-    getProducts() {
+    getProducts(page = 1) {
       // 取得產品列表 API
-      const api = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/admin/products`;
+      // 動態綁定要取得哪一頁的商品資料
+      const api = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/admin/products?page=${page}`;
       this.isLoading = true;
       this.$http.get(api)
         .then((res) => {
@@ -83,6 +87,7 @@ export default {
             this.products = res.data.products;
             this.pagination = res.data.pagination;
             this.isLoading = false;
+            console.log('getProducts', res);
           }
         });
     },
