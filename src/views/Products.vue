@@ -71,7 +71,7 @@ export default {
     Pagination,
   },
 
-  inject: ['emitter'],
+  inject: ['emitter', 'MessageState'],
 
   methods: {
     // 後台管理，取得產品列表
@@ -119,20 +119,8 @@ export default {
       this.$http[httpMethod](api, { data: this.tempProduct })
         .then((res) => {
           productComponent.modalHide();
-          console.log('錯誤訊息', res);
-          if (res.data.success) {
-            this.getProducts();
-            this.emitter.emit('push-message', {
-              style: 'success',
-              title: '更新成功',
-            });
-          } else {
-            this.emitter.emit('push-message', {
-              style: 'danger',
-              title: '更新失敗',
-              content: res.data.message.join('、'),
-            });
-          }
+          this.MessageState(res, '更新');
+          this.getProducts();
         });
     },
     openDelModal(delItem) {
@@ -141,9 +129,9 @@ export default {
     },
     // 刪除
     delProduct() {
-      const api = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/admin/product/${this.tempProduct.id}`;
+      const url = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/admin/product/${this.tempProduct.id}`;
       this.isLoading = true;
-      this.$http.delete(api)
+      this.$http.delete(url)
         .then((res) => {
           console.log(res);
           this.$refs.delModalDom.modalHide();

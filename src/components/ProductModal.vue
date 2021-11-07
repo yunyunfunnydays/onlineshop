@@ -10,7 +10,7 @@
             <span>新增產品</span>
           </h5>
           <!-- TODO change the color -->
-          <button type="button" class="btn-close text-white" data-bs-dismiss="modal"
+          <button type="button" class="btn-close" data-bs-dismiss="modal"
            aria-label="Close" ></button>
         </div>
 
@@ -19,8 +19,8 @@
             <div class="col-sm-4">
               <div class="mb-3">
                 <label for="image" class="form-label">輸入圖片網址</label>
-                <input type="text" class="form-control form-control" id="image"
-                       placeholder="請輸入圖片連結" v-model="tempProduct.inageUrl">
+                <input type="text" class="form-control" id="image"
+                       placeholder="請輸入圖片連結" v-model="tempProduct.imageUrl">
               </div>
               <div class="mb-3" >
                 <label for="customFile" class="form-label">
@@ -30,9 +30,9 @@
                 <!-- 上傳圖片 -->
                 <!-- TODO一次上傳多圖 (檔案圖片)-->
                 <input type="file" id="customFile" class="form-control form-control"
-                       ref="fileInput" @change="uploadFile">
+                       ref="fileInput" @change="uploadFile" />
               </div>
-              <img :src="tempProduct.imageUrl" alt="" class="img-fluid">
+              <img :src="tempProduct.imageUrl" alt="" class="img-fluid" />
               <!-- 一次新增多圖 (從連結) -->
               <div class="mt-5" v-if="tempProduct.images">
                 <!-- 先將已有的資料取出 -->
@@ -63,14 +63,14 @@
                        placeholder="請輸入標題" v-model="tempProduct.title">
               </div>
 
-              <div class="row gx-2 mb-3">
-                <div class="col-sm-6">
+              <div class="row gx-2">
+                <div class="mb-3 col-md-6">
                   <!-- 分類 -->
                   <label for="category" class="form-label" >分類</label>
                   <input type="text" id="category" class="form-control"
                          placeholder="請輸入分類" v-model="tempProduct.category">
                 </div>
-                <div class="col-sm-6">
+                <div class="mb-3 col-md-6">
                   <!-- 單位 -->
                   <label for="unit" class="form-label">單位</label>
                   <input type="text" id="unit" class="form-control"
@@ -78,16 +78,16 @@
                 </div>
               </div>
 
-              <div class="row gx-2 mb-3">
-                <div class="col-sm-6">
+              <div class="row gx-2">
+                <div class="mb-3 col-md-6">
                   <!-- 原價 -->
-                  <label for="origin_price" class="form-lable">原價</label>
+                  <label for="origin_price" class="form-label">原價</label>
                   <input type="number" id="origin_price" class="form-control"
                          placeholder="請輸入原價" v-model.number="tempProduct.origin_price">
                 </div>
-                <div class="col-sm-6">
+                <div class="mb-3 col-md-6">
                   <!-- 售價 -->
-                  <label for="price" class="form-lable">售價</label>
+                  <label for="price" class="form-label">售價</label>
                   <input type="number" id="price" class="form-control"
                          placeholder="請輸入售價" v-model.number="tempProduct.price">
                 </div>
@@ -119,7 +119,7 @@
           <button type="button" class="btn btn-outline-secondary"
                   data-bs-dismiss="modal">取消</button>
           <button type="button" class="btn btn-primary"
-                  @click="$emit('updateProduct',tempProduct)">確認</button>
+                  @click="$emit('update-product', tempProduct)">確認</button>
         </div>
       </div>
     </div>
@@ -165,9 +165,8 @@ export default {
       const uploadedFile = this.$refs.fileInput.files[0];
       const formData = new FormData();
       formData.append('file-to-upload', uploadedFile);
-      const api = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/admin/upload`;
-
-      this.$http.post(api, formData)
+      const url = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/admin/upload`;
+      this.$http.post(url, formData)
         .then((res) => {
           if (res.data.success) {
             this.tempProduct.imageUrl = res.data.imageUrl;

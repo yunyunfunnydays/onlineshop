@@ -3,7 +3,6 @@
   <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" ref="toast">
     <div class="toast-header">
       <span class="p-2 rounded me-2 d-inline-block" :class="`bg-${msg.style}`"></span>
-      <!-- 因為此處 class 的屬性為 string ，所以不能直接用變數表示，而要轉成 string -->
       <strong class="me-auto">{{ msg.title }}</strong>
       <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
