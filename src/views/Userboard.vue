@@ -13,6 +13,7 @@
 
 <script>
 import ToastMessages from '@/components/ToastMessages.vue';
+import pushMessageState from '@/methods/pushMessageState';
 import emitter from '@/methods/emitter';
 
 export default ({
@@ -22,6 +23,7 @@ export default ({
   provide() {
     return {
       emitter,
+      pushMessageState,
     };
   },
   create() {

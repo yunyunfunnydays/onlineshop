@@ -11,7 +11,7 @@ import ToastMessages from '@/components/ToastMessages.vue';
 // 載入 emitter 文件中的 emitter 實例
 import emitter from '@/methods/emitter';
 import Navbar from '@/components/Navbar.vue';
-import MessageState from '@/methods/pushMessageState';
+import pushMessageState from '@/methods/pushMessageState';
 
 export default {
   components: {
@@ -22,7 +22,7 @@ export default {
   provide() {
     return {
       emitter,
-      MessageState,
+      pushMessageState,
     };
   },
   created() {

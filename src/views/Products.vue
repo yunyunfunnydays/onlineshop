@@ -71,7 +71,7 @@ export default {
     Pagination,
   },
 
-  inject: ['emitter', 'MessageState'],
+  inject: ['pushMessageState'],
 
   methods: {
     // 後台管理，取得產品列表
@@ -119,7 +119,7 @@ export default {
       this.$http[httpMethod](api, { data: this.tempProduct })
         .then((res) => {
           productComponent.modalHide();
-          this.MessageState(res, '更新');
+          this.pushMessageState(res, '更新');
           this.getProducts();
         });
     },

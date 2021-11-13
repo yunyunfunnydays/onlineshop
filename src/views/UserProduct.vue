@@ -36,6 +36,7 @@ export default {
       id: '',
     };
   },
+  inject: ['pushMessageState'],
   methods: {
     getProduct() {
       const api = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/product/${this.id}`;
@@ -55,9 +56,10 @@ export default {
         qty,
       };
       this.isLoading = true;
-      this.$http.post(url, { data: cart }).then((response) => {
+      this.$http.post(url, { data: cart }).then((res) => {
         this.isLoading = false;
-        this.$httpMessageState(response, '加入購物車');
+        console.log(res);
+        this.pushMessageState(res, '加入購物車');
         this.$router.push('/user/cart');
       });
     },
