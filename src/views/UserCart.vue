@@ -1,5 +1,5 @@
 <template>
-  <Loading :active="isLoading"></Loading>
+<Loading :active="isLoading"></Loading>
   <div class="container">
     <div class="row mt-4">
       <div class="col-md-7">
@@ -21,7 +21,7 @@
             </td>
             <td><a href="#" class="text-dark">{{item.title}}</a></td>
             <td>
-              <div class="h5" v-if="!item.price">{{item.origin_price}}元</div>
+              <div class="h5" v-if="item.price === item.origin_price">{{item.origin_price}}元</div>
               <div v-else>
                 <del class="h6">原價{{item.origin_price}}元</del>
                 <div class="h5">現在只要{{item.price}}元</div>
@@ -75,17 +75,22 @@
                     已套用優惠券
                   </div>
                 </td>
+                <!-- 購物車數量 -->
                 <td>
                   <div class="input-group input-group-sm">
                     <input type="number" class="form-control"
+                      min="1"
+                      :disabled="item.id === status.loadingItem"
+                      @change="updateCart(item)"
                       v-model.number="item.qty">
                     <div class="input-group-text">/ {{ item.product.unit }}</div>
                   </div>
                 </td>
                 <td>
-                  <small class="text-success" v-if="item.coupon">折扣價:</small>
-                  價錢換算
-                  <!-- TODO -->
+                  <div class="text-end">
+                  <small class="text-success" v-if="cart.final_total !== cart.total">折扣價:</small>
+                  {{ $filters.currency(item.final_total) }}
+                  </div>
                 </td>
               </tr>
             </template>
@@ -93,16 +98,55 @@
             <tfoot>
               <tr>
                 <td colspan="3" class="text-end">總計</td>
-                <td class="text-end">價錢</td>
+                <td class="text-end">{{ $filters.currency(cart.total) }}</td>
               </tr>
-              <tr>
-                <!-- TODO 套用優惠券總價 -->
+              <tr v-if="cart.total !== cart.final_total">
+                <td colspan="3" class="text-end text-success">折扣價</td>
+                <td class="text-end ">{{ $filters.currency(cart.final_total) }}</td>
               </tr>
             </tfoot>
           </table>
+          <div class="input-group mb-3 input-group-sm">
+            <input type="text" class="form-control" v-model="coupon_code" placeholder="請輸入優惠碼">
+            <div class="input-group-append">
+              <button type="button" class="btn btn-outline-secondary" @click="addCouponCode">
+                套用優惠碼
+              </button>
+            </div>
+          </div>
         </div>
-        <!--TODO 套用優惠碼按鍵  -->
       </div>
+    </div>
+    <div>
+    <div class="my-5 row justify-content-center">
+      <Form class="col-md-6" v-slot="{ errors }" @submit="createOrder">
+        {{ errors }}
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <Field id="email" name="email" type="email" class="form-control"
+                 :class="{ 'is-invalid': errors['email'] }"
+                 placeholder="請輸入 Email" rules="email|required"
+                 v-model="form.user.email"></Field>
+          <ErrorMessage name="email" class="invalid-feedback"></ErrorMessage>
+        </div>
+        <div class="mb-3">
+          <label for="name" class="form-label" >收件人姓名</label>
+          <Field id="name" name="姓名" type="text" class="form-control"
+                 placeholder="請輸入姓名" rules="required"
+                 v-model="form.user.name"
+                 :class="{ 'is-invalid': errors['姓名']}"></Field>
+          <ErrorMessage name="姓名" class="invalid-feedback"></ErrorMessage>
+        </div>
+        <div class="mb-3">
+          <label for="tel" class="form-label">收件人電話</label>
+          <Field id="tel" name="電話" type="tel" class="form-control"
+                  placeholder="請輸入電話" rules="required"
+                  v-model="form.user.tel"
+                  :class="{'is-invalid': errors['電話']}"></Field>
+          <ErrorMessage name="電話" class="invalid-feedback"></ErrorMessage>
+        </div>
+      </Form>
+    </div>
     </div>
   </div>
 </template>
@@ -118,6 +162,16 @@ export default {
         // 加入購物車的狀態
       },
       cart: {},
+      coupon_code: '',
+      form: {
+        user: {
+          name: '',
+          email: '',
+          tel: '',
+          address: '',
+        },
+        message: '',
+      },
     };
   },
 
@@ -178,6 +232,36 @@ export default {
           this.getCart();
           this.isLoading = false;
         });
+    },
+    updateCart(item) {
+      this.isLoading = true;
+      this.status.loadingItem = item.id;
+      const url = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/cart/${item.id}`;
+      const cart = {
+        product_id: item.product_id,
+        qty: item.qty,
+      };
+      this.$http.put(url, { data: cart }).then((res) => {
+        console.log(res);
+        this.getCart();
+        this.isLoading = false;
+        this.status.loadingItem = '';
+      });
+    },
+    addCouponCode() {
+      this.isLoading = true;
+      const url = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/coupon`;
+      const coupon = {
+        code: this.coupon_code,
+      };
+      this.$http.post(url, { data: coupon }).then((res) => {
+        console.log('code', res);
+        this.getCart();
+        this.isLoading = false;
+      });
+    },
+    createOrder() {
+
     },
   },
   created() {
